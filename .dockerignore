@@ -1,0 +1,13 @@
+# Ignoring local dev env
+env/
+
+#Ignoring git and cache folders
+.git
+.cache
+.mypy_cache
+__pycache__
+
+#Ignoring swap files
+*.swp
+*.swo
+

@@ -1,0 +1,62 @@
+# Environments 
+.env 
+.venv 
+env/ 
+venv/ 
+ENV/ 
+env.bak/ 
+venv.bak/ 
+
+# Installer logs 
+pip-log.txt 
+pip-delete-this-directory.txt
+
+# Distribution / packaging 
+.Python 
+build/ 
+develop-eggs/ 
+dist/ 
+downloads/ 
+eggs/ 
+.eggs/ 
+lib/ 
+lib64/ 
+parts/ 
+sdist/ 
+var/ 
+wheels/ 
+share/python-wheels/ 
+*.egg-info/ 
+.installed.cfg 
+*.egg 
+MANIFEST
+.cache
+
+# Byte-compiled / optimized / DLL files 
+__pycache__/ 
+*.py[cod] 
+*$py.class  
+
+# C extensions 
+*.so
+
+#Local env
+env.ini
+
+#SQL dumps
+*.sql
+
+#vim editor swap files
+*.swp
+*.swo
+
+# Downloaded datasets
+src/data/datasets
+
+# Jupyter notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# IPython
+profile_default/
+ipython_config.py
