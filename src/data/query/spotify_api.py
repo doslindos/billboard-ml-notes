@@ -261,12 +261,16 @@ def fetchAlbumTracks(
         ) -> list[SpotifySongQueryResult]:
     # Loop album ids and fetch the track ids of tracks in every album
     queriedAlbumTracks: list[SpotifySongQueryResult] = []
+    print("Query number:")
     for i, track in enumerate(trackInfo):
+        if i % 100 == 0:
+            print(i)
+
         album: SpotifyAlbum = track['spotifyData']['album']
         albumTracks: list = api.album_tracks(album['albumID'])['items']
         if len(albumTracks) > 1:
             # Take a random sample of tracks
-            trackSample: list = rndSample(albumTracks, sampleSize) if sampleSize > len(albumTracks) else rndSample(albumTracks, len(albumTracks))
+            trackSample: list = rndSample(albumTracks, sampleSize) if sampleSize <= len(albumTracks) else albumTracks
             # Add ids of the random sample tracks to a list
             for albumTrack in trackSample:
                 # Ignore duplicates (song based to fetch songs from album)
@@ -278,9 +282,6 @@ def fetchAlbumTracks(
                     data['spotifyData']['album'] = album
                     data['searchQuery'] = "Shares album with " + track['spotifyData']['name']
                     queriedAlbumTracks.append(data)
-
-        if i % 100 == 0:
-            print("Album ", i+1)
 
     return queriedAlbumTracks
 
