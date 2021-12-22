@@ -1,17 +1,6 @@
 from typing import TypedDict, Optional
 
-class Credentials(TypedDict):
-    user: str
-    key: str
-
-class BillboardSong(TypedDict):
-    rank: int
-    song: str
-    artist: str
-    lastWeek: int
-    peakRank: int
-    weeksOnBoard: int
-    date: str
+from .billboard import BillboardSong
 
 class SpotifyArtist(TypedDict):
     name: str
@@ -53,3 +42,4 @@ class SpotifySongQueryResult(TypedDict):
 class SpotifySongData(TypedDict):
     info: SpotifySongInfo
     features: SpotifyFeatures
+    labels: Optional[dict]
