@@ -92,6 +92,9 @@ def songQuery(
         query: str, 
         limit: int = 10
         ) -> list[SpotifySongInfo]:
+    """
+    Implements the querying, if network issues a retry limit can be defined
+    """
     infos: list[SpotifySongInfo] = []
     queried: bool = False
     queryNum: int = 1
@@ -121,7 +124,11 @@ def songMatching(
         resultArtists: list, 
         allowedRatio: int = 80
         ) -> bool:
-    
+    """
+    The song query from spotify is basically a string matching process.
+    The api returns results even if the song doesn't exist in the spotify collection.
+    To filter out songs some string matching have to be intoduced.
+    """
     if checkIfBlackListed(resultSong):
         return False
     
@@ -148,14 +155,19 @@ def getSpotifyDataFromBillboardSongs(
         billboardTracks: list[BillboardSong],
         savePath: str = "../datasets/spotify/spotifyData.json"
         ) -> list[SpotifySongInfo]:
-    
+    """
+    If data is found in defined path, retrieve it
+    else query the data from spotify api
+    """
     def fetchSongsByNameFromSpotify(
         tracks: Union[list, Generator],
         searchLimit: int = 1,
         matchingRatio: int = 80,
         useArtistInQuery: bool = True
         ) -> tuple[list, list[int], list[int]]:
-    
+        """
+        Does the actual querying of the data
+        """
         matches: list[SpotifySongQueryResult] = []
         unMatchedIndexes: list[int] = []
         # This is used to remove duplicates
@@ -163,9 +175,10 @@ def getSpotifyDataFromBillboardSongs(
         duplicates: list[int] = []
         for i, track in enumerate(tracks):
             
-            if i % 1000 == 0:
+            # Log status to console every 100k songs or when finished
+            if i % 100000 == 0 or i+1 == len(tracks):
                 print("Queried songs: ", i)
-                print("Actual queries: ", len(madeQueries))
+                print("Matched songs: ", len(madeQueries))
                 
             billboardSongName: str = track['song']
             billboardArtistName: str = track['artist']
@@ -204,14 +217,16 @@ def getSpotifyDataFromBillboardSongs(
         # Number of query results = 3 and only song name is used in query
         matched, notMatched, duplicates = fetchSongsByNameFromSpotify(billboardTracks, 3, 100, False)
         print("From %d exact matches: %d Duplicates: %d" % (len(billboardTracks), len(matched), len(duplicates)))
+        
         # Try to get some matches where the matching isn't so strict
         # this is because the data does have some information with differing letters for example American vs European
         # + others that can be matched when the matching isn't so strict
         unexactMatches, noMatchThree, _ = fetchSongsByNameFromSpotify(
-        (billboardTracks[i] for i in notMatched),
-        3,
-        90,
-        True)
+            (billboardTracks[i] for i in notMatched),
+            3,
+            90,
+            True
+        )
         print("From %d exact matches: %d" % (len(notMatched), len(unexactMatches)))
         print("Total matched %d / %d " % (len(matched + unexactMatches), len(billboardTracks)))
         saveJson(matched + unexactMatches, savePath)
@@ -263,7 +278,7 @@ def fetchAlbumTracks(
     queriedAlbumTracks: list[SpotifySongQueryResult] = []
     print("Query number:")
     for i, track in enumerate(trackInfo):
-        if i % 100 == 0:
+        if i % 5000 == 0 or i+1 == len(trackInfo):
             print(i)
 
         album: SpotifyAlbum = track['spotifyData']['album']
