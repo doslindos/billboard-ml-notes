@@ -33,6 +33,10 @@ class SpotifySongInfo(TypedDict):
     artists: list[SpotifyArtist]
     album: SpotifyAlbum
 
+class SpotifySongStored(TypedDict):
+    songArtistKey: str
+    spotifySongInfo: SpotifySongInfo
+
 class SpotifySongQueryResult(TypedDict):
     spotifyData: SpotifySongInfo 
     searchQuery: Optional[str] 
