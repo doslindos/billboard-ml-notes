@@ -2,26 +2,26 @@ from typing import Tuple
 from pandas import concat, DataFrame
 
 def sampleByYears(
-    hits: Dataset,
-    notHits: Dataset,
+    hits: DataFrame,
+    nonHits: DataFrame,
     sampleSize: int,
     earliest: int,
     latest: int
-    ) -> Tuple[DataFrame]:
+    ) -> List[Optional[Any]]:
 
     hitSamples = None
-    notHitSamples = None
+    nonHitSamples = None
     count = 0
     # Loop all years that the dataset has
-    for year in hitsDataset['year'].unique():
+    for year in hits['year'].unique():
         
         # Check the processed year is outside the range of wanted years skip it
         if int(year) < earliest and int(year) > latest:
             continue
         
         # Take all songs by year
-        allHitsInYear = hitsDataset[hitsDataset['year'] == year]
-        allNotHitsInYear = notHitsDataset[notHitsDataset['year'] == year]
+        allHitsInYear = hits[hits['year'] == year]
+        allNotHitsInYear = nonHits[nonHits['year'] == year]
     
         # Take the samples
         hitSample = allHitsInYear.sample(sampleSize)
