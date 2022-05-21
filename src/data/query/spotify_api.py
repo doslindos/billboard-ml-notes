@@ -52,7 +52,7 @@ whiteList = [
 class SpotifyDataHandler:
 
     def __init__(self, storeFilePath: str) -> None:
-        self.data: dict[str, SpotifySongQueryResult] = {}
+        self.data: dict[str, SpotifySongQueryResult | SpotifySongData] = {}
         self.storePath = storeFilePath
         if Path(storeFilePath).exists():
             self.data = loadJson(self.storePath)
@@ -61,7 +61,14 @@ class SpotifyDataHandler:
     def createKey(songName: str, artist: str) -> str:
         return songName + artist
 
-    def storeSong(self, query: str, song: SpotifySongInfo, matchingRatio: int, track: Optional[BillboardSong]) -> None:
+    def storeSong(
+            self, 
+            query: str, 
+            song: SpotifySongInfo, 
+            matchingRatio: int, 
+            track: Optional[BillboardSong],
+            save: bool = False
+        ) -> None:
         if track is not None:
             key = self.createKey(track['song'], track['artist'])
         else:
@@ -77,12 +84,17 @@ class SpotifyDataHandler:
                 }
 
             # Update the stored json file
-            saveJson(self.data, self.storePath)
+            if save:
+                self.overwrite()
         else:
-            print(f"Why the shit {song}")
+            print(f"Should not happen {song}")
 
-    def storeFeatures(self, sid: str, songData: SpotifySongData) -> None:
+    def storeFeatures(self, sid: str, songData: SpotifySongData, save: bool = False) -> None:
         self.data[sid] = songData
+        if save:
+            self.overwrite()
+
+    def overwrite(self) -> None:
         saveJson(self.data, self.storePath)
 
 def checkIfBlackListed(name: str) -> bool:
@@ -313,6 +325,8 @@ def getSpotifyDataFromBillboardSongsV2(
             if i % 5000 == 0 and i != 0:
                 print("Queried songs: ", i)
                 print("Matched songs: ", matchedSongs)
+                # Save the collected songs every 5k queries
+                songHandler.overwrite()
                 
             billboardSongName: str = track['song']
             billboardArtistName: str = track['artist']
@@ -341,6 +355,7 @@ def getSpotifyDataFromBillboardSongsV2(
         print("All songs queried ", i+1)
         print("Matched songs: ", matchedSongs)
     
+        songHandler.overwrite()
         return (songHandler, unMatchedIndexes, duplicates)
     
     def querySongs(queryTracks: list[BillboardSong], handler: SpotifyDataHandler) -> None:
@@ -352,10 +367,11 @@ def getSpotifyDataFromBillboardSongsV2(
         handler, notMatched, duplicates = fetchSongsByNameFromSpotify(queryTracks, 3, 100, False, handler)
         newSongs = len(handler.data.keys()) - stored
         print(f"From {len(queryTracks)} exact matches: {newSongs} Duplicates: {len(duplicates)}")
-        
+
         # Try to get some matches where the matching isn't so strict
         # this is because the data does have some information with differing letters for example American vs European
         # + others that can be matched when the matching isn't so strict
+        print(f"Second search... {len(notMatched)} tracks")
         handler, _, _ = fetchSongsByNameFromSpotify(
             (queryTracks[i] for i in notMatched),
             3,
